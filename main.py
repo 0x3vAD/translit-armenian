@@ -1,5 +1,5 @@
 import inquirer
-from translit import armenian_to_latin
+from translit import armenian_to_latin, restore_capitalization
 from candidates import get_choices
 from dictionary import load_dictionary
 
@@ -23,9 +23,11 @@ def convert_sentence(text: str) -> str:
             output.append(word)
 
         elif len(choices) == 1:
-            output.append(prefix + choices[0] + suffix)
+            converted = restore_capitalization(clean, choices[0])
+            output.append(prefix + converted + suffix)
 
         else:
+            choices = [restore_capitalization(clean, c) for c in choices]
             answer = inquirer.prompt(
                 [
                     inquirer.List(
@@ -39,7 +41,8 @@ def convert_sentence(text: str) -> str:
             if chosen.startswith("[keep"):
                 output.append(word)
             else:
-                output.append(prefix + chosen + suffix)
+                converted = restore_capitalization(clean, chosen)
+                output.append(prefix + converted + suffix)
 
     return " ".join(output)
 

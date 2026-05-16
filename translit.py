@@ -22,3 +22,15 @@ def latin_to_armenian_simple(word: str) -> str:
             result.append(word[i])
             i += 1
     return "".join(result)
+
+
+def restore_capitalization(original: str, translated: str) -> str:
+    if not original or not translated:
+        return translated
+
+    if original.isupper():
+        return translated.upper()
+    elif original[0].isupper():
+        return translated[0].upper() + translated[1:]
+    else:
+        return translated
