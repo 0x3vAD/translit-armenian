@@ -1,4 +1,5 @@
-requests
-inquirer
-streamlit
+flask
 spylls
+requests
+python-dotenv
+flask-limiter
