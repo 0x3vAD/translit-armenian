@@ -1,0 +1,4 @@
+requests
+inquirer
+streamlit
+spylls
