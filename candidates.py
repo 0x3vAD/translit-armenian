@@ -9,10 +9,7 @@ def generate_candidates(word: str, index: int = 0) -> list[str]:
     results = []
     for lat, arm in LATIN_TO_ARMENIAN:
         if word[index:].startswith(lat):
-            print(f"Matched '{lat}' at index {index} in '{word}' → candidates: {arm}")
-
             options = (arm,) if isinstance(arm, str) else arm
-            print(options)
             for option in options:
                 rest = generate_candidates(word, index + len(lat))
                 results.extend(option + r for r in rest)
@@ -21,10 +18,7 @@ def generate_candidates(word: str, index: int = 0) -> list[str]:
 
 def get_choices(word: str, dictionary: Dictionary) -> list[str]:
     candidates = list(dict.fromkeys(generate_candidates(word)))
-
-    print(candidates)
     valid = [c for c in candidates if dictionary.lookup(c)]
-    print(valid)
 
     if valid:
         return valid
