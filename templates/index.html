@@ -357,6 +357,12 @@
             box-shadow: 0 6px 24px -8px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.04);
             padding: 4px;
             min-width: 120px;
+            max-height: 260px;
+            /* ← caps the height at ~6 visible options */
+            overflow-y: auto;
+            /* ← enables scrolling when content exceeds max-height */
+            overscroll-behavior: contain;
+            /* ← stops the page from scrolling when you reach the end */
             z-index: 100;
             display: none;
             font-family: 'DM Serif Display', serif;
@@ -417,15 +423,6 @@
             visibility: hidden;
         }
 
-        .chip-popover-label {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.6rem;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            padding: 0.3rem 0.7rem 0.2rem;
-            font-weight: 300;
-        }
 
         /* ── Divider arrow ── */
         .divider-col {
@@ -898,7 +895,6 @@
                 footerEngineReady: 'engine: Python / spylls',
                 popoverMatches: n => `${n} dictionary match${n === 1 ? '' : 'es'}`,
                 popoverNoMatch: 'no dictionary match · all candidates',
-                popoverTruncated: n => `showing first ${n} of many`,
                 translationError: 'Translation error',
                 serverError: 'Cannot reach server — is Flask running?',
             },
@@ -918,7 +914,6 @@
                 stepServer: 'Սերվերի կապ', stepDict: 'Բառարան', stepReady: 'Պատրաստ է',
                 footerEngineInit: 'շարժիչ: բեռնվում…', footerEngineReady: 'շարժիչ: Python / spylls',
                 popoverMatches: n => `${n} համընկնում`, popoverNoMatch: 'Բառարանում չկա',
-                popoverTruncated: n => `առաջին ${n}`,
                 translationError: 'Տառադարձման սխալ', serverError: 'Սերվերի հետ կապ չկա',
             },
             ru: {
@@ -944,7 +939,6 @@
                 stepServer: 'Подключение к серверу', stepDict: 'Загрузка словаря', stepReady: 'Запуск',
                 footerEngineInit: 'движок: инициализация…', footerEngineReady: 'движок: Python / spylls',
                 popoverMatches: n => `${n} совпадений`, popoverNoMatch: 'нет в словаре',
-                popoverTruncated: n => `первые ${n}`,
                 translationError: 'Ошибка перевода', serverError: 'Сервер недоступен — запущен ли Flask?',
             },
         };
@@ -1222,14 +1216,6 @@
                     });
                     pop.appendChild(optEl);
                 });
-
-                if (tok.truncated) {
-                    const note = document.createElement('div');
-                    note.className = 'chip-popover-label';
-                    note.style.cssText = 'border-top:1px solid var(--border);margin-top:4px;padding-top:6px;';
-                    note.textContent = t('popoverTruncated', tok.options.length);
-                    pop.appendChild(note);
-                }
 
                 chip.appendChild(pop);
                 chip.addEventListener('click', e => {

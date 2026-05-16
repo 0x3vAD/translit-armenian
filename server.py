@@ -82,10 +82,10 @@ def convert():
                     "kind": "choice",
                     "prefix": prefix,
                     "suffix": suffix,
-                    "options": shown,
+                    "options": styled,
                     "in_dict": in_dict,
                     "original": word,
-                    "truncated": truncated,
+                    "truncated": False,
                 }
             )
 
