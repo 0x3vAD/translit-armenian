@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Հայերեն — Armenian Transliterator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #F7F5F0;
+            --surface: #FFFFFF;
+            --border: #E2DDD6;
+            --border-strong: #C4BFB8;
+            --text-primary: #1A1916;
+            --text-secondary: #8A8680;
+            --text-muted: #C4BFB8;
+            --accent: #1A1916;
+            --accent-hover: #3D3A35;
+            --armenian-color: #5C4A3A;
+            --chip-bg: #F0EBE3;
+            --chip-bg-hover: #E8E1D6;
+            --chip-border: #D9D2C6;
+            --success: #3A7D44;
+            --warning: #B8732E;
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html {
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── Header ── */
+        header {
+            padding: 2.5rem 3rem 0;
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+        }
+
+        .logo {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .logo-arm {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.05rem;
+            color: var(--armenian-color);
+            letter-spacing: 0.08em;
+        }
+
+        .logo-en {
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: var(--text-muted);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .header-note {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-family: 'DM Mono', monospace;
+            font-weight: 300;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        /* ── Language picker ── */
+        .lang-picker {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid var(--border);
+            border-radius: 99px;
+            background: var(--surface);
+            padding: 2px;
+            gap: 0;
+            overflow: hidden;
+        }
+
+        .lang-opt {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.62rem;
+            letter-spacing: 0.06em;
+            padding: 0.25rem 0.6rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 99px;
+            text-transform: uppercase;
+            transition: all var(--transition);
+        }
+
+        .lang-opt:hover:not(.active) {
+            color: var(--text-primary);
+        }
+
+        .lang-opt.active {
+            background: var(--text-primary);
+            color: var(--bg);
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 99px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            font-size: 0.65rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--warning);
+            animation: pulse 1.4s ease-in-out infinite;
+        }
+
+        .status-pill.ready .status-dot {
+            background: var(--success);
+            animation: none;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.35;
+            }
+        }
+
+        /* ── Main ── */
+        main {
+            flex: 1;
+            padding: 3rem;
+            max-width: 1100px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* ── Direction toggle ── */
+        .dir-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .dir-toggle {
+            display: inline-flex;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--surface);
+            padding: 3px;
+            gap: 2px;
+        }
+
+        .dir-opt {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            padding: 0.45rem 0.95rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 2px;
+            transition: all var(--transition);
+        }
+
+        .dir-opt:hover:not(.active) {
+            color: var(--text-primary);
+        }
+
+        .dir-opt.active {
+            background: var(--text-primary);
+            color: var(--bg);
+        }
+
+        /* Flip arrow and hide chips toggle in arm→lat */
+        .panel-click[data-dir="arm2lat"] .divider-arrow svg {
+            transform: rotate(180deg);
+        }
+
+        .panel-click[data-dir="arm2lat"] #chips-toggle,
+        .panel-click[data-dir="arm2lat"] #ambig-count {
+            display: none;
+        }
+
+        /* ── Translate grid ── */
+        .translate-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 0;
+            align-items: stretch;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--surface);
+        }
+
+        .pane {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pane-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            padding: 0.9rem 1.25rem 0.5rem;
+            font-weight: 400;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .pane-hint {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: none;
+            letter-spacing: 0.04em;
+            font-weight: 300;
+        }
+
+        textarea {
+            flex: 1;
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.15rem;
+            line-height: 1.65;
+            color: var(--text-primary);
+            background: transparent;
+            border: none;
+            outline: none;
+            resize: none;
+            padding: 1.1rem 1.25rem;
+            min-height: 260px;
+            width: 100%;
+        }
+
+        textarea::placeholder {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .output-text {
+            flex: 1;
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.15rem;
+            line-height: 1.85;
+            color: var(--armenian-color);
+            padding: 1.1rem 1.25rem;
+            min-height: 260px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .output-placeholder {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* ── Inline chip (ambiguous word) ── */
+        .chip {
+            position: relative;
+            display: inline-block;
+            padding: 1px 9px 2px;
+            margin: 0 1px;
+            background: var(--chip-bg);
+            border: 1px solid var(--chip-border);
+            border-radius: 4px;
+            cursor: pointer;
+            color: var(--armenian-color);
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.15rem;
+            line-height: 1.4;
+            transition: background var(--transition), border-color var(--transition);
+            white-space: nowrap;
+        }
+
+        .chip:hover {
+            background: var(--chip-bg-hover);
+            border-color: var(--border-strong);
+        }
+
+        .chip.open {
+            background: var(--chip-bg-hover);
+            border-color: var(--text-primary);
+        }
+
+        .chip-caret {
+            display: inline-block;
+            margin-left: 4px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.55rem;
+            color: var(--text-secondary);
+            vertical-align: middle;
+            transform: translateY(-1px);
+        }
+
+        /* fallback chip — no dictionary match */
+        .chip.fallback {
+            background: transparent;
+            border: 1px dashed var(--warning);
+            color: var(--warning);
+        }
+
+        .chip.fallback:hover {
+            background: rgba(184, 115, 46, 0.06);
+        }
+
+        .chip-popover {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface);
+            border: 1px solid var(--border-strong);
+            border-radius: 4px;
+            box-shadow: 0 6px 24px -8px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.04);
+            padding: 4px;
+            min-width: 120px;
+            z-index: 100;
+            display: none;
+            font-family: 'DM Serif Display', serif;
+            text-align: left;
+        }
+
+        .chip.open .chip-popover {
+            display: block;
+            animation: popIn 0.12s ease forwards;
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-2px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .chip-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.6rem;
+            padding: 0.4rem 0.7rem;
+            font-size: 1rem;
+            color: var(--text-primary);
+            border-radius: 3px;
+            cursor: pointer;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+
+        .chip-option:hover {
+            background: var(--bg);
+        }
+
+        .chip-option.selected {
+            background: var(--text-primary);
+            color: var(--surface);
+        }
+
+        .chip-option-check {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+
+        .chip-option.selected .chip-option-check {
+            opacity: 1;
+        }
+
+        .chip-option:not(.selected) .chip-option-check {
+            visibility: hidden;
+        }
+
+        .chip-popover-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 0.3rem 0.7rem 0.2rem;
+            font-weight: 300;
+        }
+
+        /* ── Divider arrow ── */
+        .divider-col {
+            width: 1px;
+            background: var(--border);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .divider-arrow {
+            width: 28px;
+            height: 28px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            z-index: 1;
+        }
+
+        .divider-arrow svg {
+            width: 12px;
+            height: 12px;
+            stroke: var(--text-muted);
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* ── Translate footer ── */
+        .translate-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.85rem 1.25rem;
+            border: 1px solid var(--border);
+            border-top: none;
+            background: var(--surface);
+            border-radius: 0 0 4px 4px;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        .ambig-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            color: var(--warning);
+        }
+
+        .ambig-count[data-count="0"] {
+            display: none;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .btn {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 400;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: all var(--transition);
+            padding: 0.5rem 1.25rem;
+            border: 1px solid;
+        }
+
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.45;
+        }
+
+        .btn-primary {
+            background: var(--text-primary);
+            color: var(--bg);
+            border-color: var(--text-primary);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+
+        .btn-ghost {
+            background: none;
+            color: var(--text-secondary);
+            border-color: var(--border);
+        }
+
+        .btn-ghost:hover:not(:disabled) {
+            color: var(--text-primary);
+            border-color: var(--text-secondary);
+        }
+
+        .btn-copy {
+            background: none;
+            color: var(--text-muted);
+            border-color: transparent;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .btn-copy:hover {
+            color: var(--text-primary);
+        }
+
+        .btn-copy.copied {
+            color: var(--success);
+        }
+
+        .btn-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: none;
+            color: var(--text-primary);
+            border-color: var(--border);
+        }
+
+        .btn-toggle:hover:not(:disabled) {
+            border-color: var(--text-secondary);
+        }
+
+        .btn-toggle .toggle-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            transition: background var(--transition);
+        }
+
+        .btn-toggle.off {
+            color: var(--text-secondary);
+        }
+
+        .btn-toggle.off .toggle-dot {
+            background: var(--text-muted);
+        }
+
+        /* ── Loading overlay ── */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .loading-card {
+            text-align: center;
+            max-width: 340px;
+            padding: 2rem;
+        }
+
+        .loading-arm {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.75rem;
+            color: var(--armenian-color);
+            margin-bottom: 0.4rem;
+        }
+
+        .loading-en {
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+        }
+
+        .loading-step {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            font-weight: 300;
+            min-height: 1.2em;
+            transition: color 0.2s;
+        }
+
+        .loading-bar {
+            width: 100%;
+            height: 2px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .loading-bar-fill {
+            height: 100%;
+            background: var(--text-primary);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .loading-substeps {
+            margin-top: 1.5rem;
+            text-align: left;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        .loading-substeps li {
+            list-style: none;
+            padding: 0.25rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .loading-substeps li::before {
+            content: '○';
+            color: var(--text-muted);
+            font-size: 0.65rem;
+        }
+
+        .loading-substeps li.done {
+            color: var(--text-secondary);
+        }
+
+        .loading-substeps li.done::before {
+            content: '●';
+            color: var(--success);
+        }
+
+        .loading-substeps li.active {
+            color: var(--text-primary);
+        }
+
+        .loading-substeps li.active::before {
+            content: '●';
+            color: var(--warning);
+            animation: pulse 1.2s ease-in-out infinite;
+        }
+
+        .loading-error {
+            margin-top: 1.5rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--warning);
+            border-radius: 3px;
+            background: rgba(184, 115, 46, 0.05);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--warning);
+            text-align: left;
+            display: none;
+        }
+
+        .loading-error.visible {
+            display: block;
+        }
+
+        /* ── Footer ── */
+        footer {
+            padding: 1.5rem 3rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .footer-text {
+            font-size: 0.68rem;
+            color: var(--text-secondary);
+            font-family: 'DM Mono', monospace;
+            font-weight: 300;
+            letter-spacing: 0.04em;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 760px) {
+
+            header,
+            main,
+            footer {
+                padding-left: 1.25rem;
+                padding-right: 1.25rem;
+            }
+
+            .translate-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .divider-col {
+                width: 100%;
+                height: 1px;
+            }
+
+            .divider-arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Loading overlay — shown while Flask server health check runs -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-card">
+            <div class="loading-arm">Հայերեն</div>
+            <div class="loading-en">Armenian Transliterator</div>
+            <div class="loading-step" id="loading-step">Connecting to server…</div>
+            <div class="loading-bar">
+                <div class="loading-bar-fill" id="loading-bar-fill"></div>
+            </div>
+            <ul class="loading-substeps">
+                <li id="step-server">Connecting to Flask server</li>
+                <li id="step-dict">Loading Armenian dictionary</li>
+                <li id="step-ready">Warming up engine</li>
+            </ul>
+            <div class="loading-error" id="loading-error"></div>
+            <button class="btn btn-ghost" id="retry-btn" style="display:none; margin-top:1rem;"
+                onclick="retryBootstrap()">Retry</button>
+        </div>
+    </div>
+
+    <header>
+        <div class="logo">
+            <span class="logo-arm">Հայերեն</span>
+            <span class="logo-en">Armenian Transliterator</span>
+        </div>
+        <div class="header-note">
+            <div class="lang-picker" id="lang-picker">
+                <button class="lang-opt active" data-lang="en" onclick="setLang('en')">EN</button>
+                <button class="lang-opt" data-lang="hy" onclick="setLang('hy')">ՀԱՅ</button>
+                <button class="lang-opt" data-lang="ru" onclick="setLang('ru')">RU</button>
+            </div>
+            <span id="header-direction">Latin → Armenian</span>
+            <span class="status-pill" id="status-pill">
+                <span class="status-dot"></span>
+                <span id="status-text">loading</span>
+            </span>
+        </div>
+    </header>
+
+    <main>
+        <div class="panel-click" id="panel-click" data-dir="lat2arm">
+
+            <!-- Direction toggle -->
+            <div class="dir-bar">
+                <div class="dir-toggle">
+                    <button class="dir-opt active" data-dir="lat2arm" onclick="setDirection('lat2arm', this)">Latin →
+                        Armenian</button>
+                    <button class="dir-opt" data-dir="arm2lat" onclick="setDirection('arm2lat', this)">Armenian →
+                        Latin</button>
+                </div>
+            </div>
+
+            <div class="translate-grid">
+                <!-- Input pane -->
+                <div class="pane">
+                    <div class="pane-label">
+                        <span id="pane-input-label">Latin input</span>
+                        <span class="pane-hint" id="pane-input-hint">type a sentence, then translate</span>
+                    </div>
+                    <textarea id="input-text" placeholder="barev, inchpes es?  shnorhakalutyun…"
+                        oninput="updateCharCount()"></textarea>
+                </div>
+
+                <!-- Divider -->
+                <div class="divider-col">
+                    <div class="divider-arrow">
+                        <svg viewBox="0 0 24 24">
+                            <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Output pane -->
+                <div class="pane">
+                    <div class="pane-label">
+                        <span id="pane-output-label">Armenian script</span>
+                        <span class="pane-hint" id="pane-output-hint">click pills to pick alternatives</span>
+                    </div>
+                    <div class="output-text" id="output-text">
+                        <span class="output-placeholder">Translation appears here…</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer bar -->
+            <div class="translate-footer">
+                <div class="footer-left">
+                    <span id="char-count">0 characters</span>
+                    <span class="ambig-count" id="ambig-count" data-count="0">
+                        <span id="ambig-num">0</span>&nbsp;<span id="ambig-label">ambiguous</span>
+                    </span>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-toggle" id="chips-toggle" onclick="toggleChips()">
+                        <span class="toggle-dot"></span>
+                        <span id="chips-toggle-label">Word picker on</span>
+                    </button>
+                    <button class="btn btn-ghost" onclick="clearAll()" id="clear-btn">Clear</button>
+                    <button class="btn btn-copy" id="copy-btn" onclick="copyOutput()" title="Copy">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" />
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                        </svg>
+                    </button>
+                    <button class="btn btn-primary" id="translate-btn" onclick="doTranslate()"
+                        disabled>Translate</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <span class="footer-text">Eastern Armenian · Hunspell dictionary · spylls</span>
+        <span class="footer-text" id="footer-engine">engine: initializing…</span>
+    </footer>
+
+    <script>
+
+        const I18N = {
+            en: {
+                statusLoading: 'loading', statusReady: 'ready', statusError: 'error',
+                dirLatToArm: 'Latin → Armenian', dirArmToLat: 'Armenian → Latin',
+                paneLatinInput: 'Latin input', paneArmenianScript: 'Armenian script',
+                paneArmenianInput: 'Armenian input', paneLatinScript: 'Latin script',
+                hintLatType: 'type a sentence, then translate',
+                hintLatOutput: 'click pills to pick alternatives',
+                hintArmType: 'paste or type Armenian, then translate',
+                hintArmOutput: 'deterministic — no ambiguity',
+                placeholderLat: 'barev, inchpes es?  shnorhakalutyun…',
+                placeholderArm: 'Բարև, ինչպես ես?  շնորհակալություն…',
+                outputPlaceholder: 'Translation appears here…',
+                translating: 'Translating…',
+                translateBtn: 'Translate', clearBtn: 'Clear',
+                wordPickerOn: 'Word picker on', wordPickerOff: 'Word picker off',
+                chars: n => `${n} ${n === 1 ? 'character' : 'characters'}`,
+                ambig: 'ambiguous',
+                stepServer: 'Connecting to Flask server',
+                stepDict: 'Loading Armenian dictionary',
+                stepReady: 'Warming up engine',
+                footerEngineInit: 'engine: initializing…',
+                footerEngineReady: 'engine: Python / spylls',
+                popoverMatches: n => `${n} dictionary match${n === 1 ? '' : 'es'}`,
+                popoverNoMatch: 'no dictionary match · all candidates',
+                popoverTruncated: n => `showing first ${n} of many`,
+                translationError: 'Translation error',
+                serverError: 'Cannot reach server — is Flask running?',
+            },
+            hy: {
+                statusLoading: 'բեռնվում է', statusReady: 'պատրաստ է', statusError: 'սխալ',
+                dirLatToArm: 'Լատիներեն → Հայերեն', dirArmToLat: 'Հայերեն → Լատիներեն',
+                paneLatinInput: 'Լատինատառ տեքստ', paneArmenianScript: 'Հայերեն գիր',
+                paneArmenianInput: 'Հայերեն տեքստ', paneLatinScript: 'Լատինատառ գիր',
+                hintLatType: 'մուտքագրեք նախադասություն', hintLatOutput: 'սեղմեք տարբերակների վրա',
+                hintArmType: 'մուտքագրեք հայերեն', hintArmOutput: 'միանշանակ — առանց ընտրության',
+                placeholderLat: 'barev, inchpes es?…', placeholderArm: 'Բարև, ինչպես ես?…',
+                outputPlaceholder: 'Արդյունքը կհայտնվի այստեղ…',
+                translating: 'Տառադարձվում է…',
+                translateBtn: 'Տառադարձել', clearBtn: 'Մաքրել',
+                wordPickerOn: 'Ընտրիչ միացված', wordPickerOff: 'Ընտրիչ անջատված',
+                chars: n => `${n} նիշ`, ambig: 'երկիմաստ',
+                stepServer: 'Սերվերի կապ', stepDict: 'Բառարան', stepReady: 'Պատրաստ է',
+                footerEngineInit: 'շարժիչ: բեռնվում…', footerEngineReady: 'շարժիչ: Python / spylls',
+                popoverMatches: n => `${n} համընկնում`, popoverNoMatch: 'Բառարանում չկա',
+                popoverTruncated: n => `առաջին ${n}`,
+                translationError: 'Տառադարձման սխալ', serverError: 'Սերվերի հետ կապ չկա',
+            },
+            ru: {
+                statusLoading: 'загрузка', statusReady: 'готово', statusError: 'ошибка',
+                dirLatToArm: 'Латиница → Армянский', dirArmToLat: 'Армянский → Латиница',
+                paneLatinInput: 'Латиница', paneArmenianScript: 'Армянский',
+                paneArmenianInput: 'Армянский текст', paneLatinScript: 'Латиница',
+                hintLatType: 'введите фразу и нажмите кнопку', hintLatOutput: 'кликайте по плашкам',
+                hintArmType: 'введите армянский текст', hintArmOutput: 'детерминированно',
+                placeholderLat: 'barev, inchpes es?…', placeholderArm: 'Բարև, ինչպես ես?…',
+                outputPlaceholder: 'Здесь появится перевод…',
+                translating: 'Переводим…',
+                translateBtn: 'Перевести', clearBtn: 'Очистить',
+                wordPickerOn: 'Выбор слов вкл.', wordPickerOff: 'Выбор слов выкл.',
+                chars: n => {
+                    const l = n % 10, lt = n % 100;
+                    if (lt >= 11 && lt <= 14) return `${n} символов`;
+                    if (l === 1) return `${n} символ`;
+                    if (l >= 2 && l <= 4) return `${n} символа`;
+                    return `${n} символов`;
+                },
+                ambig: 'неоднозн.',
+                stepServer: 'Подключение к серверу', stepDict: 'Загрузка словаря', stepReady: 'Запуск',
+                footerEngineInit: 'движок: инициализация…', footerEngineReady: 'движок: Python / spylls',
+                popoverMatches: n => `${n} совпадений`, popoverNoMatch: 'нет в словаре',
+                popoverTruncated: n => `первые ${n}`,
+                translationError: 'Ошибка перевода', serverError: 'Сервер недоступен — запущен ли Flask?',
+            },
+        };
+
+        let currentLang = (() => {
+            try { const s = localStorage.getItem('arm_lang'); if (s && I18N[s]) return s; } catch (e) { }
+            return 'en';
+        })();
+
+        const t = (key, ...a) => {
+            const d = I18N[currentLang] || I18N.en;
+            const v = d[key] !== undefined ? d[key] : I18N.en[key];
+            return typeof v === 'function' ? v(...a) : (v !== undefined ? v : key);
+        };
+
+        function applyI18n() {
+            document.documentElement.lang = currentLang;
+            document.getElementById('status-text').textContent = serverReady ? t('statusReady') : t('statusLoading');
+            document.getElementById('header-direction').textContent = direction === 'lat2arm' ? t('dirLatToArm') : t('dirArmToLat');
+            document.getElementById('footer-engine').textContent = serverReady ? t('footerEngineReady') : t('footerEngineInit');
+            document.getElementById('ambig-label').textContent = t('ambig');
+            document.getElementById('chips-toggle-label').textContent = chipsEnabled ? t('wordPickerOn') : t('wordPickerOff');
+            document.getElementById('translate-btn').textContent = t('translateBtn');
+            document.getElementById('clear-btn').textContent = t('clearBtn');
+            document.getElementById('step-server').textContent = t('stepServer');
+            document.getElementById('step-dict').textContent = t('stepDict');
+            document.getElementById('step-ready').textContent = t('stepReady');
+            syncDirectionStrings();
+            updateCharCount();
+            if (lastTokens) renderOutput();
+        }
+
+        function syncDirectionStrings() {
+            const inp = document.getElementById('input-text');
+            if (direction === 'lat2arm') {
+                document.getElementById('pane-input-label').textContent = t('paneLatinInput');
+                document.getElementById('pane-output-label').textContent = t('paneArmenianScript');
+                document.getElementById('pane-input-hint').textContent = t('hintLatType');
+                document.getElementById('pane-output-hint').textContent = t('hintLatOutput');
+                inp.placeholder = t('placeholderLat');
+            } else {
+                document.getElementById('pane-input-label').textContent = t('paneArmenianInput');
+                document.getElementById('pane-output-label').textContent = t('paneLatinScript');
+                document.getElementById('pane-input-hint').textContent = t('hintArmType');
+                document.getElementById('pane-output-hint').textContent = t('hintArmOutput');
+                inp.placeholder = t('placeholderArm');
+            }
+        }
+
+        function setLang(lang) {
+            if (!I18N[lang]) return;
+            currentLang = lang;
+            try { localStorage.setItem('arm_lang', lang); } catch (e) { }
+            document.querySelectorAll('.lang-opt').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+            applyI18n();
+        }
+
+
+        function setStep(text, pct) {
+            document.getElementById('loading-step').textContent = text;
+            if (typeof pct === 'number') document.getElementById('loading-bar-fill').style.width = pct + '%';
+        }
+
+        function markStep(id, state) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.remove('active', 'done');
+            if (state) el.classList.add(state);
+        }
+
+        function showLoadError(msg) {
+            const el = document.getElementById('loading-error');
+            el.textContent = msg; el.classList.add('visible');
+            document.getElementById('retry-btn').style.display = 'inline-block';
+        }
+
+        function retryBootstrap() {
+            document.getElementById('loading-error').classList.remove('visible');
+            document.getElementById('retry-btn').style.display = 'none';
+            ['step-server', 'step-dict', 'step-ready'].forEach(id => markStep(id, ''));
+            bootstrap();
+        }
+
+        function hideOverlay() {
+            document.getElementById('loading-overlay').classList.add('hidden');
+        }
+
+
+        let serverReady = false;
+
+        async function bootstrap() {
+            try {
+                markStep('step-server', 'active');
+                setStep('Connecting to Flask server…', 15);
+
+
+                const res = await fetch('/health');
+                if (!res.ok) throw new Error('Server returned ' + res.status);
+                const info = await res.json();
+                markStep('step-server', 'done');
+
+                markStep('step-dict', 'active');
+                setStep('Loading Armenian dictionary…', 50);
+                await new Promise(r => setTimeout(r, 80));
+                setStep(`Dictionary ready (${Math.round(info.dict_size / 1000)}k words)`, 75);
+                markStep('step-dict', 'done');
+
+                markStep('step-ready', 'active');
+                setStep('Warming up engine…', 90);
+                await new Promise(r => setTimeout(r, 80));
+                setStep('Ready', 100);
+                markStep('step-ready', 'done');
+
+                await new Promise(r => setTimeout(r, 200));
+
+
+                serverReady = true;
+                document.getElementById('translate-btn').disabled = false;
+                document.getElementById('status-pill').classList.add('ready');
+                document.getElementById('status-text').textContent = t('statusReady');
+                document.getElementById('footer-engine').textContent = t('footerEngineReady');
+                hideOverlay();
+
+            } catch (err) {
+                console.error(err);
+                setStep('Failed to connect', 0);
+                showLoadError(t('serverError') + '\n' + (err.message || err));
+                document.getElementById('status-text').textContent = t('statusError');
+            }
+        }
+
+
+        let direction = 'lat2arm';
+
+        function setDirection(dir, btn) {
+            direction = dir;
+            document.querySelectorAll('.dir-opt').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            document.getElementById('panel-click').dataset.dir = dir;
+
+            const inp = document.getElementById('input-text');
+            const out = document.getElementById('output-text');
+
+            if (dir === 'lat2arm') {
+                inp.style.color = '';
+                out.style.color = '';
+            } else {
+                inp.style.color = 'var(--armenian-color)';
+                out.style.color = 'var(--text-primary)';
+            }
+
+            syncDirectionStrings();
+            clearAll();
+            applyI18n();
+        }
+
+
+        let lastTokens = null;
+        let chipSelections = [];
+        let chipsEnabled = true;
+
+        async function doTranslate() {
+            if (!serverReady) return;
+            const text = document.getElementById('input-text').value;
+            const out = document.getElementById('output-text');
+
+            if (!text.trim()) {
+                out.innerHTML = `<span class="output-placeholder">${t('outputPlaceholder')}</span>`;
+                updateAmbigCount(0);
+                lastTokens = null;
+                return;
+            }
+
+            out.innerHTML = `<span class="output-placeholder">${t('translating')}</span>`;
+
+            try {
+                const res = await fetch('/convert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, direction }),
+                });
+
+                if (!res.ok) throw new Error('Server error ' + res.status);
+                const data = await res.json();
+
+
+                if (data.result !== undefined) {
+                    out.textContent = data.result;
+                    lastTokens = null;
+                    updateAmbigCount(0);
+                    return;
+                }
+
+
+
+                lastTokens = data.tokens;
+                chipSelections = lastTokens.map(() => 0);
+                renderOutput();
+
+            } catch (err) {
+                console.error(err);
+                out.innerHTML = `<span class="output-placeholder" style="color:var(--warning)">${t('translationError')}: ${err.message}</span>`;
+            }
+        }
+
+
+        function renderOutput() {
+            const out = document.getElementById('output-text');
+            out.innerHTML = '';
+            if (!lastTokens) return;
+
+            let ambigCount = 0;
+
+            lastTokens.forEach((tok, idx) => {
+
+                if (tok.kind === 'fixed') {
+                    out.appendChild(document.createTextNode(tok.text));
+                    return;
+                }
+
+
+                ambigCount++;
+                const selIdx = chipSelections[idx] || 0;
+                const selected = tok.options[selIdx];
+
+                if (!chipsEnabled) {
+
+                    out.appendChild(document.createTextNode((tok.prefix || '') + selected + (tok.suffix || '')));
+                    return;
+                }
+
+
+                if (tok.prefix) out.appendChild(document.createTextNode(tok.prefix));
+
+
+                const chip = document.createElement('span');
+                chip.className = 'chip' + (tok.in_dict ? '' : ' fallback');
+                chip.dataset.idx = idx;
+
+                const label = document.createElement('span');
+                label.className = 'chip-label';
+                label.textContent = selected;
+                chip.appendChild(label);
+
+                const caret = document.createElement('span');
+                caret.className = 'chip-caret';
+                caret.textContent = '▾';
+                chip.appendChild(caret);
+
+
+                const pop = document.createElement('span');
+                pop.className = 'chip-popover';
+
+                const popLabel = document.createElement('div');
+                popLabel.className = 'chip-popover-label';
+                popLabel.textContent = tok.in_dict ? t('popoverMatches', tok.options.length) : t('popoverNoMatch');
+                pop.appendChild(popLabel);
+
+                tok.options.forEach((opt, i) => {
+                    const optEl = document.createElement('div');
+                    optEl.className = 'chip-option' + (i === selIdx ? ' selected' : '');
+
+                    const txt = document.createElement('span');
+                    txt.textContent = opt;
+                    const check = document.createElement('span');
+                    check.className = 'chip-option-check';
+                    check.textContent = '✓';
+
+                    optEl.appendChild(txt);
+                    optEl.appendChild(check);
+                    optEl.addEventListener('click', e => {
+                        e.stopPropagation();
+                        chipSelections[idx] = i;
+                        renderOutput();
+                    });
+                    pop.appendChild(optEl);
+                });
+
+                if (tok.truncated) {
+                    const note = document.createElement('div');
+                    note.className = 'chip-popover-label';
+                    note.style.cssText = 'border-top:1px solid var(--border);margin-top:4px;padding-top:6px;';
+                    note.textContent = t('popoverTruncated', tok.options.length);
+                    pop.appendChild(note);
+                }
+
+                chip.appendChild(pop);
+                chip.addEventListener('click', e => {
+                    e.stopPropagation();
+                    const wasOpen = chip.classList.contains('open');
+                    closeAllChips();
+                    if (!wasOpen) chip.classList.add('open');
+                });
+
+                out.appendChild(chip);
+                if (tok.suffix) out.appendChild(document.createTextNode(tok.suffix));
+            });
+
+            updateAmbigCount(ambigCount);
+        }
+
+        function closeAllChips() {
+            document.querySelectorAll('.chip.open').forEach(c => c.classList.remove('open'));
+        }
+
+        document.addEventListener('click', closeAllChips);
+
+
+        function updateAmbigCount(n) {
+            const el = document.getElementById('ambig-count');
+            el.dataset.count = String(n);
+            document.getElementById('ambig-num').textContent = String(n);
+        }
+
+        function updateCharCount() {
+            const n = document.getElementById('input-text').value.length;
+            document.getElementById('char-count').textContent = t('chars', n);
+        }
+
+        function clearAll() {
+            document.getElementById('input-text').value = '';
+            document.getElementById('output-text').innerHTML =
+                `<span class="output-placeholder">${t('outputPlaceholder')}</span>`;
+            document.getElementById('char-count').textContent = t('chars', 0);
+            updateAmbigCount(0);
+            lastTokens = null;
+            chipSelections = [];
+        }
+
+        function toggleChips() {
+            chipsEnabled = !chipsEnabled;
+            document.getElementById('chips-toggle').classList.toggle('off', !chipsEnabled);
+            document.getElementById('chips-toggle-label').textContent = chipsEnabled ? t('wordPickerOn') : t('wordPickerOff');
+            if (lastTokens) renderOutput();
+        }
+
+        function copyOutput() {
+            const out = document.getElementById('output-text');
+            if (out.querySelector('.output-placeholder')) return;
+
+            let text = '';
+            for (const node of out.childNodes) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    text += node.textContent;
+                } else if (node.classList && node.classList.contains('chip')) {
+                    const lbl = node.querySelector('.chip-label');
+                    if (lbl) text += lbl.textContent;
+                } else {
+                    text += node.textContent;
+                }
+            }
+
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copy-btn');
+                btn.classList.add('copied');
+                setTimeout(() => btn.classList.remove('copied'), 1500);
+            });
+        }
+
+
+        document.getElementById('input-text').addEventListener('keydown', e => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') doTranslate();
+        });
+
+
+        document.querySelectorAll('.lang-opt').forEach(b =>
+            b.classList.toggle('active', b.dataset.lang === currentLang)
+        );
+        applyI18n();
+        bootstrap();
+    </script>
+</body>
+
+</html>
